@@ -3,10 +3,30 @@ import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-
-import { useColorScheme } from '@/components/useColorScheme';
+// import { useColorScheme } from '@/components/useColorScheme';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as SecureStore from 'expo-secure-store';
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+
+const CLERK_PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
+
+const tokenCache = {
+  async getToken(key:string) {
+    try {
+      return await SecureStore.getItemAsync(key);
+    } catch (err) {
+      return null;
+    }
+  }, 
+  async saveToken(key:string, value:string) {
+    try {
+      return await SecureStore.setItemAsync(key, value);
+    } catch (err) {
+      return;
+    }
+  }
+}
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -23,7 +43,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
-    'mon': require('../assets/fonts/Montserrat-VariableFont_wght.ttf')
+    'mon': require('../assets/fonts/Montserrat-VariableFont_wght.ttf'),
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -41,11 +61,23 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return  (
+    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
+    <RootLayoutNav />
+    </ClerkProvider>
+  )
+
 }
 
 function RootLayoutNav() {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/(modals)/login')
+    }
+  }, [isLoaded])
 
   return (
       <Stack>
