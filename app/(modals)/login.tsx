@@ -83,7 +83,9 @@ const onSelectAuth = async (strategy: Strategy) => {
               <Text style={styles.btnOutlineText}>Continue with Facebook</Text>
             </TouchableOpacity>
       </View>
+     
     </View>
+    
   )
 }
 
