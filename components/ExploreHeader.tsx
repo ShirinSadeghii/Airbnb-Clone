@@ -105,7 +105,8 @@ const ExploreHeader = ({onCategoryChanged}: Props) => {
 const styles =  StyleSheet.create({
     container: {
         backgroundColor: '#fff',
-        height: 130
+        height: 140,
+        paddingTop: 10
     },
     actionRow: {
         flexDirection: 'row',
